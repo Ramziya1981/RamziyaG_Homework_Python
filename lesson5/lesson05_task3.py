@@ -1,3 +1,4 @@
+from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -12,5 +13,6 @@ text_field.send_keys("100")
 text_field.clear()
 text_field.send_keys("200")
 
+sleep(5)
 
 driver.quit()
