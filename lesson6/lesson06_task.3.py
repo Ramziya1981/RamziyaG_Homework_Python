@@ -6,13 +6,18 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 driver = webdriver.Chrome(
-service=ChromeService(ChromeDriverManager().install()))
+    service=ChromeService(ChromeDriverManager().install())
+    )
 
-driver.get("https://bonigarcia.dev/selenium-webdriver-java/loading-images.html")
+driver.get(
+    "https://bonigarcia.dev/selenium-webdriver-java/loading-images.html"
+    )
 
 waiter = WebDriverWait(driver, 20)
 
-waiter.until(EC.text_to_be_present_in_element((By.ID, "text"), "Done!"))
+waiter.until(
+    EC.text_to_be_present_in_element((By.ID, "text"), "Done!")
+    )
 
 element = driver.find_element(By.CSS_SELECTOR, "#award")
 src = element.get_dom_attribute("src")
