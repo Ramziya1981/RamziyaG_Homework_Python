@@ -6,7 +6,6 @@ from datetime import datetime
 
 load_dotenv()
 
-
 def get_base_url():
     return "https://ru.yougile.com/api-v2"
 

@@ -1,19 +1,21 @@
 import json
 import requests
 from conftest import get_base_url
+import configparser
 
 base_url = get_base_url()
 companyId = 'ba02d034-3aae-4014-a1ed-d7612ecf975c'
-login = 'ramziya.giniyatullina@gmail.com'
-password = '@T-fiSAVv4T4zek'
 created_project = "2d1bb44f-7ea3-485e-a6d9-0a65de50b390"
+config = configparser.ConfigParser()
+config.read('config.ini')
+login = config['General']['login']
+password = config['General']['password']
+
 
 
 # Удаляем все ранее выданные ключи
 
 def delete_keys():
-    # Определяем креды
-
     creds = {
         'login': login,
         'password': password,
@@ -57,7 +59,8 @@ def get_key():
     return resp.json()["key"]
 
 
-def test_create_project_positive(session, base_url):
+def test_create_project_positive(session, base_url):    
+    
     # Очистка существующих ключей
     delete_keys()
 
