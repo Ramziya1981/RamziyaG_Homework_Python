@@ -2,7 +2,7 @@ import requests
 import os
 from dotenv import load_dotenv
 from conftest import get_base_url
-token = 'Id7WO5JYHhRmuA8djo+D5zjIqW2LFGsuKbGS3XNBUcA6C7w6dJ+IREBK1+lDOX+6'
+token = ''
 
 
 def get_company_info(token):
