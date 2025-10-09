@@ -2,14 +2,11 @@ import json
 import requests
 import configparser
 
-#base_url = get_base_url()
 companyId = 'ba02d034-3aae-4014-a1ed-d7612ecf975c'
 config = configparser.ConfigParser()
 config.read('config.ini')
 login = config['General']['login']
 password = config['General']['password']
-
-
 
 # Удаляем все ранее выданные ключи
 
