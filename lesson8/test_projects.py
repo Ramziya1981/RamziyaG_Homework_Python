@@ -1,11 +1,9 @@
 import json
 import requests
-from conftest import get_base_url
 import configparser
 
-base_url = get_base_url()
+#base_url = get_base_url()
 companyId = 'ba02d034-3aae-4014-a1ed-d7612ecf975c'
-created_project = "2d1bb44f-7ea3-485e-a6d9-0a65de50b390"
 config = configparser.ConfigParser()
 config.read('config.ini')
 login = config['General']['login']
@@ -15,7 +13,7 @@ password = config['General']['password']
 
 # Удаляем все ранее выданные ключи
 
-def delete_keys():
+def delete_keys(base_url):
     creds = {
         'login': login,
         'password': password,
@@ -32,18 +30,18 @@ def delete_keys():
     # проходим по всем объектам в json и берем значение key у каждого
     for key_info in data:
         print(key_info),
-    # формируем запрос на удаление каждого полученного ранее ключа
-    # https://ru.yougile.com/api-v2#/operations/AuthKeyController_delete
-    resp = requests.delete(
-        base_url + '/auth/keys/' + key_info['key'],
-        json=creds
+        # формируем запрос на удаление каждого полученного ранее ключа
+        # https://ru.yougile.com/api-v2#/operations/AuthKeyController_delete
+        resp = requests.delete(
+            base_url + '/auth/keys/' + key_info['key'],
+            json=creds
     )
     print("Ключ: " + key_info['key'] + " Результат удаления:" + resp.text)
 
 
 # Получаем новый ключ
 
-def get_key():
+def get_key(base_url):
 
     creds = {
         'login': login,
@@ -59,13 +57,13 @@ def get_key():
     return resp.json()["key"]
 
 
-def test_create_project_positive(session, base_url):    
-    
+def test_create_project_positive(session, base_url):
+
     # Очистка существующих ключей
-    delete_keys()
+    delete_keys(base_url)
 
     # Получение нового токена
-    token = get_key()
+    token = get_key(base_url)
     print(token)
     # Проверка полученного токена
     assert token, "Токен не был получен"
@@ -107,8 +105,8 @@ def test_create_project_positive(session, base_url):
 # Тест на создание нового проекта (негативный)
 # Невалидные данные - отсутствует обязательное поле title
 def test_create_project_negative_1(session, base_url):
-    delete_keys()
-    token = get_key()
+    delete_keys(base_url)
+    token = get_key(base_url)
     headers = {"Authorization": f"Bearer {token}"}
     invalid_data = {
         "invalid": "Invalid project"
@@ -129,8 +127,8 @@ def test_create_project_negative_1(session, base_url):
 
 
 def test_create_project_false_positive(session, base_url):
-    delete_keys()
-    token = get_key()
+    delete_keys(base_url)
+    token = get_key(base_url)
     headers = {"Authorization": f"Bearer {token}"}
     invalid_company_data = {
         "title": "???"
@@ -146,27 +144,43 @@ def test_create_project_false_positive(session, base_url):
 
 
 def test_update_project_positive(session, base_url):
-    delete_keys()
-    token = get_key()
+    delete_keys(base_url)
+    token = get_key(base_url)
+
+    headers = {"Authorization": f"Bearer {token}"}
+    
+    # Сначала создаём проект
+    project_data = {
+        "title": "Test Project for Update"
+    }
+    create_response = session.post(
+        f"{base_url}/projects",
+        json=project_data,
+        headers=headers
+    )
+    assert create_response.status_code == 201
+    project_id = create_response.json()["id"]
+    print(f"Создан проект с ID: {project_id}")
+
     headers = {"Authorization": f"Bearer {token}"}
     update_data = {
         "title": "???!!!&&&&"
     }
     response = session.put(
-        f"{base_url}/projects/{created_project}",
+        f"{base_url}/projects/{project_id}",
         json=update_data,
         headers=headers
     )
-    print(f"created_id {created_project}")
+    print(f"created_id {project_id}")
     print(response.text)
     assert response.status_code == 200
-    assert response.json()["id"] == created_project
+    assert response.json()["id"] == project_id
 
 
 def test_update_project_negative(session, base_url):
     # Попытка обновить несуществующий проект
-    delete_keys()
-    token = get_key()
+    delete_keys(base_url)
+    token = get_key(base_url)
     headers = {"Authorization": f"Bearer {token}"}
     response = session.put(
         f"{base_url}/projects/999999",
