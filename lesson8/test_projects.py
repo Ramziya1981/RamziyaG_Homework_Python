@@ -10,6 +10,7 @@ password = config['General']['password']
 
 # Удаляем все ранее выданные ключи
 
+
 def delete_keys(base_url):
     creds = {
         'login': login,
@@ -32,7 +33,7 @@ def delete_keys(base_url):
         resp = requests.delete(
             base_url + '/auth/keys/' + key_info['key'],
             json=creds
-    )
+        )
     print("Ключ: " + key_info['key'] + " Результат удаления:" + resp.text)
 
 
@@ -145,7 +146,7 @@ def test_update_project_positive(session, base_url):
     token = get_key(base_url)
 
     headers = {"Authorization": f"Bearer {token}"}
-    
+
     # Сначала создаём проект
     project_data = {
         "title": "Test Project for Update"

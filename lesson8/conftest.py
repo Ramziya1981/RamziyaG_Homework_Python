@@ -2,7 +2,7 @@ import requests
 import os
 import pytest
 from dotenv import load_dotenv
-from datetime import datetime
+
 
 load_dotenv()
 
@@ -24,4 +24,3 @@ def session():
 @pytest.fixture
 def base_url():
     return BASE_URL
-
