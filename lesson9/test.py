@@ -1,100 +1,93 @@
-import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String
-
-# Строка подключения к БД
-DATABASE_URL = "postgresql://myuser:mypassword@localhost:5432/QA"
-
-# Создание движка и сессии
-engine = create_engine(DATABASE_URL)
-Session = sessionmaker(bind=engine)
-session = Session()
-Base = declarative_base()
-
-
-# Пример модели Student
-class Student(Base):
-    __tablename__ = 'student'
-
-    user_id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    age = Column(Integer)
-
-
-# Фикстура для очистки данных после теста
-@pytest.fixture(autouse=True)
-def clear_data():
-    yield
-    session.query(Student).delete()
-    session.commit()
+from student import Student, Session
 
 
 # Тест на добавление студента
 def test_add_student():
-    studentName = "Иван Петров"
-    print('Создаем сущность Студент с именем: ' + studentName)
-    new_student = Student(user_id=1, name=studentName, age=20)
+    studentId = "1"
+    print('Создаем сущность Студент с ID: ' + studentId)
+    new_student = Student(
+        user_id=studentId,
+        level="Первый курс",
+        education_form="Очная",
+        subject_id=21
+    )
+    session = Session()
     session.add(new_student)
     session.commit()
 
     # Проверка добавления
-    student = session.query(Student).filter_by(name=studentName).first()
+    student = session.query(Student).filter_by(user_id=studentId).first()
     assert student is not None
-    assert student.age == 20
+    assert student.education_form == "Очная"
 
     # Удаляем за собой созданное
-    student = session.query(Student).filter_by(name=studentName).first()
+    student = session.query(Student).filter_by(user_id=studentId).first()
     session.delete(student)
-    print('Удаляем сущность Студент с именем: ' + studentName)
+    print('Удаляем сущность Студент с ID: ' + studentId)
+    session.commit()
+    session.close
 
 
 # Тест на обновление студента
 def test_update_student():
     # Сначала создаем запись
-    studentName = "Анна Сидорова"
-    print('Создаем сущность Студент с именем: ' + studentName)
-    new_student = Student(name=studentName, age=21)
+    studentId = "1"
+    print('Создаем сущность Студент с ID: ' + studentId)
+    new_student = Student(
+        user_id=studentId,
+        level="Первый курс",
+        education_form="Очная",
+        subject_id=21
+    )
+    session = Session()
     session.add(new_student)
     session.commit()
 
     # Обновляем данные
-    student = session.query(Student).filter_by(name=studentName).first()
-    student.age = 22
+    student = session.query(Student).filter_by(user_id=studentId).first()
+    student.education_form = "Заочная"
     session.commit()
 
     # Проверяем обновление
     updated_student = session.query(Student).filter_by(
-        name=studentName
+        user_id=studentId
         ).first()
-    assert updated_student.age == 22
+    assert updated_student.education_form == "Заочная"
 
     # Удаляем за собой созданное
-    student = session.query(Student).filter_by(name=studentName).first()
+    student = session.query(Student).filter_by(user_id=studentId).first()
     session.delete(student)
-    print('Удаляем сущность Студент с именем: ' + studentName)
+    print('Удаляем сущность Студент с ID: ' + studentId)
+    session.commit()
+    session.close
 
 
 # Тест на удаление студента
 def test_delete_student():
-    # Создаем запись
-    studentName = "Иннокентий Смоктуновский"
-    print('Создаем сущность Студент с именем: ' + studentName)
-    new_student = Student(name=studentName, age=23)
+    # Сначала создаем запись
+    studentId = "1"
+    print('Создаем сущность Студент с ID: ' + studentId)
+    new_student = Student(
+        user_id=studentId,
+        level="Первый курс",
+        education_form="Очная",
+        subject_id=21
+    )
+    session = Session()
     session.add(new_student)
     session.commit()
 
-    # Удаляем запись
-    student = session.query(Student).filter_by(name=studentName).first()
+    # Удаляем за собой созданное
+    student = session.query(Student).filter_by(user_id=studentId).first()
     session.delete(student)
-    print('Удаляем сущность Студент с именем: ' + studentName)
-    session.commit()
+    print('Удаляем сущность Студент с ID: ' + studentId)
 
     # Проверяем удаление
     deleted_student = (
         session.query(Student)
-        .filter_by(name=studentName)
+        .filter_by(user_id=studentId)
         .first()
     )
     assert deleted_student is None
+    session.commit()
+    session.close
